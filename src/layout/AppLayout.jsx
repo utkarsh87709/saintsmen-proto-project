@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   FiMenu,
@@ -11,28 +11,142 @@ import {
   FiUsers,
   FiSearch,
   FiBell,
-  FiChevronDown,
+  FiUserCheck,
+  FiShield,
+  FiMapPin,
+  FiSettings,
+  FiClipboard
 } from "react-icons/fi";
 import logo from '../assets/logo.png'
 import { useNavigate } from "react-router-dom";
 
-// Placeholder logo - replace with your actual logo import
-// const logo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'%3E%3Ctext x='10' y='40' font-family='Arial, sans-serif' font-size='32' font-weight='bold' fill='%232563eb'%3ESaintsmen%3C/text%3E%3C/svg%3E";
-
-const menuItems = [
-  { name: "Dashboard", icon: <FiHome />, path: "/dashboard" },
-  { name: "Vendor", icon: <FiUsers />, path: "/vendor" },
-  { name: "Calendar", icon: <FiCalendar />, path: "/calendar" },
-  { name: "Profile", icon: <FiUser />, path: "/profile" },
-  { name: "Help", icon: <FiHelpCircle />, path: "/help" },
+// Menu items with roles and proper icons
+const menuItemsConfig = [
+  { 
+    name: "Dashboard", 
+    icon: <FiHome />, 
+    path: "/dashboard",
+    roles: ["admin", "host"] 
+  },
+  { 
+    name: "Manage Visitors", 
+    icon: <FiUsers />, 
+    path: "/vendor",
+    roles: ["admin", "host"] 
+  },
+  { 
+    name: "Request Visit", 
+    icon: <FiUserCheck />, 
+    path: "/request-visit",
+    roles: ["client"] 
+  },
+  { 
+    name: "Manage Users", 
+    icon: <FiSettings />, 
+    path: "/create-users",
+    roles: ["admin"] 
+  },
+  { 
+    name: "Premises Management", 
+    icon: <FiShield />, 
+    path: "/security",
+    roles: ["security", "admin"] 
+  },
+  { 
+    name: "My Visits", 
+    icon: <FiClipboard />, 
+    path: "/myvisits",
+    roles: ["client"] 
+  },
+  { 
+    name: "Calendar", 
+    icon: <FiCalendar />, 
+    path: "/calendar",
+    roles: ["admin", "host"] 
+  },
+  { 
+    name: "Profile", 
+    icon: <FiUser />, 
+    path: "/profile",
+    roles: ["admin", "host", "client", "security"] // everyone
+  },
+  { 
+    name: "Help", 
+    icon: <FiHelpCircle />, 
+    path: "/help",
+    roles: ["admin", "host", "client", "security"] // everyone
+  },
 ];
 
 const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [filteredMenuItems, setFilteredMenuItems] = useState([]);
   const location = useLocation();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+
+  // Load user role from localStorage on component mount
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    setUserRole(role);
+    
+    if (role) {
+      // Filter menu items based on user role
+      const filtered = menuItemsConfig.filter(item => 
+        item.roles.includes(role.toLowerCase())
+      );
+      setFilteredMenuItems(filtered);
+    } else {
+      // If no role found, redirect to login or show minimal items
+      console.warn("No user role found in localStorage");
+      // Optional: Redirect to login
+      // navigate('/login');
+      
+      // Show only public items as fallback
+      setFilteredMenuItems(menuItemsConfig.filter(item => 
+        item.roles.includes("client") // Default fallback
+      ));
+    }
+  }, []);
+
+  // Get user info from localStorage
+  const userName = localStorage.getItem('userName') || 'User';
+  const userEmail = localStorage.getItem('userEmail') || '';
+
+  // Handle logout
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem('role');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('token'); // If you have token
+    // Redirect to home/login
+    navigate('/');
+  };
+
+  // Function to get role display name
+  const getRoleDisplayName = (role) => {
+    const roleMap = {
+      'admin': 'Administrator',
+      'host': 'Host',
+      'client': 'Client',
+      'security': 'Security Officer'
+    };
+    return roleMap[role] || role;
+  };
+
+  // Function to get user initials for avatar
+  const getUserInitials = (name) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
 
   return (
     <div className="flex h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100">
@@ -70,9 +184,12 @@ const AppLayout = () => {
           </button>
         </div>
 
+        {/* User Info */}
+       
+
         {/* Navigation */}
-        <nav className="mt-6 px-4 space-y-1">
-          {menuItems.map((item) => {
+        <nav className="mt-4 px-4 space-y-1">
+          {filteredMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
@@ -99,7 +216,10 @@ const AppLayout = () => {
           })}
 
           {/* Logout */}
-          <button onClick={()=>navigate('/')} className="flex items-center gap-4 px-4 py-3.5 mt-8 text-red-600 hover:bg-red-50 rounded-xl w-full transition-all duration-200 group">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-4 px-4 py-3.5 mt-8 text-red-600 hover:bg-red-50 rounded-xl w-full transition-all duration-200 group"
+          >
             <FiLogOut className="text-xl" />
             <span className="font-medium">Logout</span>
           </button>
@@ -200,17 +320,40 @@ const AppLayout = () => {
                 className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-xl transition-all"
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 text-white flex items-center justify-center font-semibold shadow-md">
-                  A
+                  {getUserInitials(userName)}
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="font-semibold text-sm text-gray-900">Akshay Raju</p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                  <p className="font-semibold text-sm text-gray-900">{userName}</p>
+                  <p className="text-xs text-gray-500">{userRole ? getRoleDisplayName(userRole) : 'Loading...'}</p>
                 </div>
-              
               </button>
 
               {/* Profile Dropdown */}
-           
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                    <p className="font-semibold text-sm text-gray-900">{userName}</p>
+                    <p className="text-xs text-gray-500">{userEmail}</p>
+                  </div>
+                  <div className="py-1">
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <FiUser className="inline mr-2" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <FiLogOut className="inline mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>

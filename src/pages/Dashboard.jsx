@@ -1,494 +1,340 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Star, MoreVertical, Filter, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline } from 'react-icons/io5';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Star, MoreVertical, Filter, X, Calendar, Users, Shield } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaUserAstronaut } from "react-icons/fa";
 
 const Dashboard = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [selectedMonth, setSelectedMonth] = useState(2); // March 2025
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role"); // admin | host
+  const [currentView, setCurrentView] = useState("dashboard");
   const [expandedRequest, setExpandedRequest] = useState(null);
-  const navigate=useNavigate()
 
-  // Dummy data
+  /* -------------------- Dummy Data -------------------- */
   const timeSlots = [
-    '10:00am', '10:30am', '11:00am', '11:30am', '12:00am', '12:30pm',
-    '1:00pm', '1:30pm', '2:00pm', '2:30pm', '3:00pm', '4:00pm',
-    '4:30pm', '5:30pm', '6:00pm', '6:30pm', '7:30pm', '8:00pm'
+    "10:00am","10:30am","11:00am","11:30am","12:00am","12:30pm",
+    "1:00pm","1:30pm","2:00pm","2:30pm","3:00pm","4:00pm",
+    "4:30pm","5:30pm","6:00pm","6:30pm","7:30pm","8:00pm"
   ];
 
   const visitorRequests = [
-    { id: 1, date: 'Fri', day: 14, name: 'Balwinder Singh', location: 'Transformer Plant', time: '11:00 AM - 12:00 AM' },
-    { id: 2, date: 'Sat', day: 15, name: 'Balwinder Singh', location: 'Transformer Plant', time: '11:00 AM - 12:00 AM' },
-    { id: 3, date: 'Sat', day: 15, name: 'Balwinder Singh', location: 'Transformer Plant', time: '11:00 AM - 12:00 AM' },
-    { id: 4, date: 'Sat', day: 15, name: 'Balwinder Singh', location: 'Transformer Plant', time: '11:00 AM - 12:00 AM' }
+    { id: 1, date: "Fri", day: 14, name: "Akshay Raju", location: "14 Jan 2026", time: "11:00 AM - 12:00 AM" },
+    { id: 2, date: "Sat", day: 15, name: "Pratith K", location: "15 Jan 2026", time: "11:00 AM - 12:00 AM" }
   ];
 
   const documents = [
-    { id: 1, name: 'Balwinder Singh', time: 'Thu | 11:00 AM - 12:00PM' },
-    { id: 2, name: 'Balwinder Singh', time: 'Thu | 11:00 AM - 12:00PM' },
-    { id: 3, name: 'Balwinder Singh', time: 'Thu | 11:00' }
+    { id: 1, name: "Akshay Raju", time: "Thu | 11:00 AM - 12:00PM" },
+    { id: 2, name: "Pratith K", time: "Thu | 11:00 AM - 12:00PM" }
   ];
 
   const trackVisitors = [
-    { id: 1, name: 'Balwinder Singh', location: 'Transformer Plant', status: 'Live', duration: '2 Hr', time: 'Thu | 11:00 AM - 12:00PM', distance: '645m' },
-    { id: 2, name: 'Balwinder Singh', location: 'Transformer Plant', status: 'Live', duration: '2 Hr', time: 'Thu | 11:00 AM - 12:00PM', distance: '645m' },
-    { id: 3, name: 'Rahul Mehta', location: 'Transformer Plant', status: 'Live', duration: '2 Hr', time: 'Wed | 11:00 AM - 12:00PM', distance: '645m' }
+        { id: 1, name: "Sandhya Reddy", location: "Transformer Plant", status: "Live", duration: "2 Hr", time: "Thu | 11:00 AM - 12:00PM", distance: "645m" },
+    { id: 1, name: "Utkarsh Singh", location: "Transformer Plant", status: "Live", duration: "2 Hr", time: "Thu | 11:00 AM - 12:00PM", distance: "645m" }
   ];
 
   const allVisitorRequests = [
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '04 Sep 2024', contact: '+91 9999-999999', status: 'Approved', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' },
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '28 May 2024', contact: '+91 9999-999999', status: 'Approved', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' },
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '23 Nov 2024', contact: '+91 9999-999999', status: 'Rejected', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' },
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '05 Feb 2024', contact: '+91 9999-999999', status: 'Approved', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' },
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '29 Jul 2024', contact: '+91 9999-999999', status: 'Approved', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' },
-    { id: 'BRCK18409JHM', name: 'Balwinder Singh', department: 'Transformer Plant', date: '10 Mar 2025', contact: '+91 9999-999999', status: 'New', host: 'Vikramjeet', location: 'Sector E', idNo: 'DL01-12345678909', visitTime: '2:30 PM', purpose: 'Office Works', device: 'Laptop' }
+    { id: "BRCK18409JHM", name: "Balwinder Singh", department: "Transformer Plant", date: "04 Sep 2024", contact: "+91 9999-999999", status: "Approved" }
   ];
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Approved': return 'bg-emerald-100 text-emerald-700';
-      case 'Rejected': return 'bg-red-100 text-red-700';
-      case 'New': return 'bg-yellow-100 text-yellow-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+    if (status === "Approved") return "bg-emerald-100 text-emerald-700";
+    if (status === "Rejected") return "bg-red-100 text-red-700";
+    return "bg-yellow-100 text-yellow-700";
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3 }
-    }
+      transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" }
+    }),
+    hover: { y: -8, transition: { duration: 0.3 } }
   };
 
-  if (currentView === 'allRequests') {
+  /* -------------------- VIEW: ALL REQUESTS -------------------- */
+  if (currentView === "allRequests") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-7xl mx-auto"
-        >
-          {/* Header */}
-          <div className="mb-6">
-            {/* <button
-              onClick={() => setCurrentView('dashboard')}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors"
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-100 p-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3 mb-8"
+          >
+            <button
+              onClick={() => setCurrentView("dashboard")}
+              className="p-2 rounded-lg bg-white shadow-lg shadow-purple-200/50 hover:shadow-purple-300/60 transition-all"
             >
               <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Back to Dashboard</span>
-            </button> */}
-            <h1 className="text-3xl font-bold text-slate-900">Visitor Requests</h1>
-          </div>
-
-          {/* Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6"
-          >
-            <div className="flex flex-wrap gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
-                <Filter className="w-4 h-4" />
-                Filter By
-              </button>
-              <button className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
-                Date
-              </button>
-              <button className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
-                Visit Type
-              </button>
-              <button className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
-                Approval Status
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors ml-auto">
-                <X className="w-4 h-4" />
-                Reset Filter
-              </button>
-            </div>
+            </button>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Visitor Requests
+            </h1>
           </motion.div>
 
-          {/* Table */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
+            className="bg-white rounded-2xl shadow-2xl shadow-purple-200/40 overflow-hidden"
           >
-            {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">ID</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">Name</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">Visiting Department</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">Date</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">Contact No.</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-slate-600 uppercase">Status</th>
+                <thead className="bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Contact</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <AnimatePresence>
-                    {allVisitorRequests.map((request, index) => (
-                      <React.Fragment key={index}>
-                        <motion.tr
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
-                          onClick={() => setExpandedRequest(expandedRequest === index ? null : index)}
-                        >
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <motion.div
-                                animate={{ rotate: expandedRequest === index ? 90 : 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <ChevronRight className="w-4 h-4 text-slate-400" />
-                              </motion.div>
-                              <span className="text-sm font-medium text-slate-900 underline">{request.id}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-slate-700">{request.name}</td>
-                          <td className="py-4 px-6 text-sm text-slate-700">{request.department}</td>
-                          <td className="py-4 px-6 text-sm text-slate-700">{request.date}</td>
-                          <td className="py-4 px-6 text-sm text-slate-700">{request.contact}</td>
-                          <td className="py-4 px-6">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(request.status)}`}>
-                              {request.status}
-                            </span>
-                          </td>
-                        </motion.tr>
-                        <AnimatePresence>
-                          {expandedRequest === index && (
-                            <motion.tr
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <td colSpan="6" className="bg-slate-50">
-                                <motion.div
-                                  initial={{ y: -10 }}
-                                  animate={{ y: 0 }}
-                                  className="p-6 flex items-start gap-6"
-                                >
-                                  <div className="w-20 h-20 bg-slate-300 rounded-lg flex-shrink-0"></div>
-                                  <div className="flex-1 grid grid-cols-2 gap-4">
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">Visiting Host</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.host}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">Department Location</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.location}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">ID NO</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.idNo}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">Visiting Time</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.visitTime}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">Purpose Of Visit</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.purpose}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500 mb-1">Electronic Device</p>
-                                      <p className="text-sm font-medium text-slate-900">{request.device}</p>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">
-                                      Approve
-                                    </button>
-                                    <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
-                                      Reject
-                                    </button>
-                                  </div>
-                                </motion.div>
-                              </td>
-                            </motion.tr>
-                          )}
-                        </AnimatePresence>
-                      </React.Fragment>
-                    ))}
-                  </AnimatePresence>
+                  {allVisitorRequests.map((req, i) => (
+                    <motion.tr
+                      key={req.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="border-b border-slate-100 hover:bg-purple-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-slate-600">{req.id}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">{req.name}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{req.department}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{req.date}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{req.contact}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(req.status)}`}>
+                          {req.status}
+                        </span>
+                      </td>
+                    </motion.tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-
-            {/* Mobile Cards */}
-            <div className="md:hidden space-y-4 p-4">
-              {allVisitorRequests.map((request, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border border-slate-200 rounded-lg p-4 space-y-3"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">ID</p>
-                      <p className="text-sm font-medium text-slate-900">{request.id}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(request.status)}`}>
-                      {request.status}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Name</p>
-                    <p className="text-sm font-medium text-slate-900">{request.name}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Department</p>
-                      <p className="text-sm text-slate-700">{request.department}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Date</p>
-                      <p className="text-sm text-slate-700">{request.date}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setExpandedRequest(expandedRequest === index ? null : index)}
-                    className="w-full py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
-                  >
-                    {expandedRequest === index ? 'Hide Details' : 'View Details'}
-                  </button>
-                  <AnimatePresence>
-                    {expandedRequest === index && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-3 pt-3 border-t border-slate-200"
-                      >
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Host</p>
-                            <p className="text-sm text-slate-700">{request.host}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Location</p>
-                            <p className="text-sm text-slate-700">{request.location}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Time</p>
-                            <p className="text-sm text-slate-700">{request.visitTime}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Device</p>
-                            <p className="text-sm text-slate-700">{request.device}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button className="flex-1 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">
-                            Approve
-                          </button>
-                          <button className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-medium">
-                            Reject
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Pagination */}
-            <div className="border-t border-slate-200 p-4 flex justify-between items-center">
-              <span className="text-sm text-slate-600">Showing 1-09 of 78</span>
-              <div className="flex gap-2">
-                <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                  <ChevronLeft className="w-5 h-5 text-slate-600" />
-                </button>
-                <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                  <ChevronRight className="w-5 h-5 text-slate-600" />
-                </button>
-              </div>
-            </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
+  /* -------------------- MAIN DASHBOARD -------------------- */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="max-w-7xl mx-auto space-y-6"
-      >
-        {/* Time Slots */}
-        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-slate-900">Manage Time Slots</h2>
-            <button className="text-sm font-medium text-emerald-600 hover:text-emerald-700">Today →</button>
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2">
-            {timeSlots.map((slot, index) => (
-              <motion.button
-                key={index}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                  ['11:00am', '11:30am', '12:00am', '12:30pm', '1:00pm', '1:30pm', '2:00pm', '2:30pm', '3:00pm', '4:00pm'].includes(slot)
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                {slot}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Welcome */}
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-5xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent"
+        >
+          {role === "admin" ? "Welcome Admin" : "Welcome Host"}
+        </motion.h1>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Visitor Requests */}
-          <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-slate-900">Visitor Request</h2>
-              <button
-                onClick={() => setCurrentView('allRequests')}
-                className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
-              >
-                View All →
-              </button>
-            </div>
-            <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-800">March 2025</h3>
-              <div className="flex gap-2">
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="p-1 hover:bg-slate-100 rounded">
-                  <ChevronLeft className="w-5 h-5 text-slate-600" />
-                </motion.button>
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="p-1 hover:bg-slate-100 rounded">
-                  <ChevronRight className="w-5 h-5 text-slate-600" />
-                </motion.button>
+        {/* ADMIN QUICK ACTIONS */}
+        {role === "admin" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <motion.div
+              custom={0}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              onClick={() => navigate("/calendar")}
+              className="bg-white p-6 rounded-2xl cursor-pointer shadow-xl shadow-blue-200/50 hover:shadow-blue-300/70 transition-all"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-300/50">
+                <Calendar className="w-6 h-6 text-white" />
               </div>
-            </div>
-            <div className="space-y-3">
-              {visitorRequests.map((request) => (
-                <motion.div
-                  key={request.id}
-                  whileHover={{ x: 4 }}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-center bg-slate-100 rounded-lg p-2 min-w-[48px]">
-                      <div className="text-xs text-slate-600 font-medium">{request.date}</div>
-                      <div className="text-xl font-bold text-slate-900">{request.day}</div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900">{request.name}</h4>
-                      <p className="text-sm text-slate-500">{request.location} | {request.time}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+              <h3 className="font-semibold text-slate-900 text-lg">Show Calendar</h3>
+              <p className="text-sm text-slate-500 mt-1">Appointments</p>
+            </motion.div>
 
-          {/* Visitor Documents */}
-          <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-slate-900">Visitor Documents</h2>
-              <button className="text-sm font-medium text-emerald-600 hover:text-emerald-700">View All →</button>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {documents.map((doc) => (
-                <motion.div
-                  key={doc.id}
-                  whileHover={{ y: -4 }}
-                  className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <Star className="w-5 h-5 text-slate-300 hover:text-amber-400" />
-                    <MoreVertical className="w-5 h-5 text-slate-400" />
-                  </div>
-                  <div className=" rounded h-32 mb-3 flex items-center justify-center">
-<IoDocumentTextOutline size={38} className='h-30 text-slate-500'/>
-                  </div>
-                  <h4 className="font-semibold text-slate-900 text-sm">{doc.name}</h4>
-                  <p className="text-xs text-slate-500 mt-1">{doc.time}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+            <motion.div
+              custom={1}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              onClick={() => navigate("/create-users")}
+              className="bg-white p-6 rounded-2xl cursor-pointer shadow-xl shadow-emerald-200/50 hover:shadow-emerald-300/70 transition-all"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-300/50">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-slate-900 text-lg">Manage Users</h3>
+              <p className="text-sm text-slate-500 mt-1">User management</p>
+            </motion.div>
 
-        {/* Track Visitors */}
-        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-slate-900">Track Visitors</h2>
-            <button className="text-sm font-medium text-emerald-600 hover:text-emerald-700">View All →</button>
+            <motion.div
+              custom={2}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              onClick={() => navigate("/security")}
+              className="bg-white p-6 rounded-2xl cursor-pointer shadow-xl shadow-purple-200/50 hover:shadow-purple-300/70 transition-all"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-purple-300/50">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-slate-900 text-lg">Premises</h3>
+              <p className="text-sm text-slate-500 mt-1">Management</p>
+            </motion.div>
+
+            <motion.div
+              custom={3}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              onClick={() => navigate("/track-visitor")}
+              className="bg-white p-6 rounded-2xl cursor-pointer shadow-xl shadow-orange-200/50 hover:shadow-orange-300/70 transition-all"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-orange-300/50">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-slate-900 text-lg">Track Visitors</h3>
+              <p className="text-sm text-slate-500 mt-1">Real-time tracking</p>
+            </motion.div>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {trackVisitors.map((visitor) => (
+        )}
+
+        {/* VISITOR REQUESTS (ADMIN + HOST) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-2xl p-6 mb-8 shadow-2xl shadow-indigo-200/40"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Visitor Requests
+            </h2>
+            <button
+              onClick={() => setCurrentView("allRequests")}
+              className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2 hover:gap-3 transition-all"
+            >
+              View All →
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {visitorRequests.map((req, i) => (
               <motion.div
-                key={visitor.id}
-                whileHover={{ y: -4 }}
-                className="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
+                key={req.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all shadow-md shadow-blue-200/30"
               >
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-12 h-12 bg-slate-300 rounded-full flex-shrink-0 flex items-center justify-center">
-                 <FaUserAstronaut size={18}/>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-slate-900">{visitor.name}</h4>
-                    <p className="text-sm text-slate-500">{visitor.location}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full animate-pulse">
-                      {visitor.status}
-                    </span>
-                  </div>
+                <div className="bg-white p-3 rounded-lg shadow-md shadow-blue-300/30">
+                  <div className="text-sm text-slate-600">{req.date}</div>
+                  <div className="text-2xl font-bold text-indigo-600">{req.day}</div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-slate-600 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{visitor.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>{visitor.distance}</span>
-                  </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-slate-900">{req.name}</h3>
+                  <p className="text-sm text-slate-600">{req.location} | {req.time}</p>
                 </div>
-                <p className="text-xs text-slate-500 mb-3">{visitor.time}</p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
-                  onClick={()=>navigate('/track-visitor')}
-                >
-                  See Details
-                </motion.button>
+                <button className="p-2 hover:bg-white rounded-lg transition-colors">
+                  <MoreVertical className="w-5 h-5 text-slate-400" />
+                </button>
               </motion.div>
             ))}
           </div>
         </motion.div>
-      </motion.div>
+
+        {/* VISITOR DOCUMENTS (ADMIN + HOST) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white rounded-2xl p-6 mb-8 shadow-2xl shadow-purple-200/40"
+        >
+          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Visitor Documents
+          </h2>
+
+          <div className="space-y-4">
+            {documents.map((doc, i) => (
+              <motion.div
+                key={doc.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + i * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-all shadow-md shadow-purple-200/30"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-300/50">
+                  <IoDocumentTextOutline className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-slate-900">{doc.name}</h3>
+                  <p className="text-sm text-slate-600">{doc.time}</p>
+                </div>
+                <button className="p-2 hover:bg-white rounded-lg transition-colors">
+                  <MoreVertical className="w-5 h-5 text-slate-400" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* TRACK VISITORS (ADMIN ONLY) */}
+        {role === "admin" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="bg-white rounded-2xl p-6 shadow-2xl shadow-emerald-200/40"
+          >
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Track Visitors
+            </h2>
+
+            <div className="space-y-4">
+              {trackVisitors.map((v, i) => (
+                <motion.div
+                  key={v.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.9 + i * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 shadow-lg shadow-emerald-200/40"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-300/50">
+                      <FaUserAstronaut className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 text-lg">{v.name}</h3>
+                      <p className="text-sm text-slate-600">{v.location}</p>
+                    </div>
+                    <span className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-full flex items-center gap-1 shadow-lg shadow-red-300/50 animate-pulse">
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
+                      {v.status}
+                    </span>
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/track-visitor")}
+                    className="mt-3 w-full bg-gradient-to-r from-slate-900 to-slate-700 text-white py-3 rounded-xl font-medium shadow-xl shadow-slate-400/50 hover:shadow-slate-500/60 transition-all"
+                  >
+                    See Details
+                  </motion.button>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };
