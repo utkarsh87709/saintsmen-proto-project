@@ -38,7 +38,7 @@ const menuItemsConfig = [
     name: "Request Visit", 
     icon: <FiUserCheck />, 
     path: "/request-visit",
-    roles: ["client"] 
+    roles: ["client","security"] 
   },
   { 
     name: "Manage Users", 
